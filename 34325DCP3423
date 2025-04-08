@@ -136,36 +136,35 @@ local function ChatCommand(speakerName, message)
                 end
             end
         end
-		local match10 = message:lower():match("//spawn%s+([%w_]+)")
-			if match10 and LocalPlayer.Name:lower():find(match10) then
-				ReplicatedStorage.RemoteEvent.SpawnCharacterEvent:FireServer("MainSpawn")
-			end
-			local match11 = message:lower():match("//disablesword%s+([%w_]+)")
-			if match11 and LocalPlayer.Name:lower():find(match11) then
-				local Sword = LocalPlayer.Character:FindFirstChild("Sword")
-				if Sword then
-					for _, child in ipairs(Sword:GetChildren()) do
-						child:Destroy()
-					end
-				else
-				local Backpack = LocalPlayer:FindFirstChild("Backpack")
-				if Backpack then
-					Sword = Backpack:FindFirstChild("Sword")
-					if Sword then
-						for _, child in ipairs(Sword:GetChildren()) do
-							child:Destroy()
-						end
-					end
-				end
-			end
-		end
-		local match12 = message:lower():match("//rejoin%s+([%w_]+)")
-		if match12 and LocalPlayer.Name:lower():find(match12) then
-			TeleportService:Teleport(PlaceId, LocalPlayer)
-		end
-	end
+        local match10 = message:lower():match("//spawn%s+([%w_]+)")
+        if match10 and LocalPlayer.Name:lower():find(match10) then
+            ReplicatedStorage.RemoteEvent.SpawnCharacterEvent:FireServer("MainSpawn")
+        end
+        local match11 = message:lower():match("//disablesword%s+([%w_]+)")
+        if match11 and LocalPlayer.Name:lower():find(match11) then
+            local Sword = LocalPlayer.Character:FindFirstChild("Sword")
+            if Sword then
+                for _, child in ipairs(Sword:GetChildren()) do
+                    child:Destroy()
+                end
+            else
+                local Backpack = LocalPlayer:FindFirstChild("Backpack")
+                if Backpack then
+                    Sword = Backpack:FindFirstChild("Sword")
+                    if Sword then
+                        for _, child in ipairs(Sword:GetChildren()) do
+                            child:Destroy()
+                        end
+                    end
+                end
+            end
+        end
+        local match12 = message:lower():match("//rejoin%s+([%w_]+)")
+        if match12 and LocalPlayer.Name:lower():find(match12) then
+            TeleportService:Teleport(PlaceId, LocalPlayer)
+        end
+    end
 end
-
 TextChatService.TextChannels.RBXGeneral.MessageReceived:Connect(function(messageData)
     local textSource = messageData.TextSource
     if textSource then
@@ -176,6 +175,28 @@ TextChatService.TextChannels.RBXGeneral.MessageReceived:Connect(function(message
             local message = messageData.Text
             if speakerName and message then
                 ChatCommand(speakerName, message)
+            end
+        end
+    end
+end)
+Players.LocalPlayer.Chatted:Connect(function(message)
+    local whisperMatch = message:match("^/w%s+(%w+)%s+(.+)") or message:match("^/whisper%s+(%w+)%s+(.+)")
+    if whisperMatch then
+        local targetName, whisperMessage = whisperMatch[1], whisperMatch[2]
+        local speakerName = LocalPlayer.Name
+        if Admins[speakerName] then
+            if targetName:lower() == LocalPlayer.Name:lower() then
+                ChatCommand(speakerName, whisperMessage)
+            end
+        end
+    end
+end)
+game.ReplicatedStorage.DefaultChatSystemChatEvents.OnMessageDoneFiltering.OnClientEvent:Connect(function(messageData)
+    if messageData.FromSpeaker and messageData.MessageType == "Whisper" then
+        local speaker = Players:FindFirstChild(messageData.FromSpeaker)
+        if speaker and messageData.Message then
+            if messageData.ToSpeaker == LocalPlayer.Name then
+                ChatCommand(speaker.Name, messageData.Message)
             end
         end
     end
