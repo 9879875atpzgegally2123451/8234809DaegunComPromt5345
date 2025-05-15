@@ -12,6 +12,7 @@ local Admins = {
     ["Raiden_Nika"] = true,
     ["philippinesBraxy123"] = true,
     ["Brxy_Alt"] = true,
+    ["VyxzarlIion"] = true,
     ["Bowmbaclaat"] = true,
     ["Drenvoryth"] = true
 }
