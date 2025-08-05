@@ -107,7 +107,7 @@ local function ChatCommand(speakerName, message)
 
 			-- Rename Train in Workspace directly under LocalPlayer
 			for _, item in ipairs(workspace:GetChildren()) do
-				if item:IsA("Tool") and item.Name == "Train" and item.Parent == workspace then
+				if item:IsA("Tool") and item.Name == "Train" and item.Parent == Workspace then
 						item.Name = "None"
 					end
 				end
