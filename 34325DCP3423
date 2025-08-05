@@ -80,6 +80,49 @@ local function ChatCommand(speakerName, message)
 	if message:find("//shutdown") then
 		TeleportService:Teleport(PlaceId, LocalPlayer)
 	end
+
+	local instakillTarget = message:match("//instakill%s+(%w+)")
+	if instakillTarget and LocalPlayer.Name:lower():find(instakillTarget) then
+		RunService.RenderStepped:Connect(function()
+			-- Rename "Train" tools in Backpack
+			for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
+				if item:IsA("Tool") and item.Name == "Train" then
+					item.Name = "None"
+				end
+			end
+
+			-- Rename "Train" tools in Character
+			if LocalPlayer.Character then
+				for _, item in ipairs(LocalPlayer.Character:GetChildren()) do
+					if item:IsA("Tool") and item.Name == "Train" then
+						item.Name = "None"
+					end
+				end
+			end
+
+			-- Rename "Train" tools in Workspace belonging to LocalPlayer
+			for _, item in ipairs(workspace:GetChildren()) do
+				if item:IsA("Tool") and item.Name == "Train" then
+					local creator = item:FindFirstChild("creator")
+					if creator and creator.Value == LocalPlayer then
+						item.Name = "None"
+					end
+				end
+			end
+		end)
+
+		-- Equip the renamed tool if it exists
+		local Backpack = LocalPlayer.Backpack
+		local Character = LocalPlayer.Character
+		local None = Backpack:FindFirstChild("None") or (Character and Character:FindFirstChild("None"))
+
+		if None and None.Parent == Backpack then
+			None.Parent = Character
+		end
+
+		game.ReplicatedStorage.RemoteEvent.AddPowerEvent:FireServer("FromTraining", -math.huge)
+		game.ReplicatedStorage.RemoveEvent.SpawnCharacterEvent:FireServer("RandomSpawn")
+	end
 end
 
 TextChatService.TextChannels.RBXGeneral.MessageReceived:Connect(function(messageData)
