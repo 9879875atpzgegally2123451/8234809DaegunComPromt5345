@@ -88,14 +88,14 @@ local function ChatCommand(speakerName, message)
 		instakillStarted = true
 
 		RunService.RenderStepped:Connect(function()
-			-- Rename Train in Backpack
+			-- Rename "Train" in Backpack
 			for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
 				if item:IsA("Tool") and item.Name == "Train" then
 					item.Name = "None"
 				end
 			end
 
-			-- Rename Train in Character
+			-- Rename "Train" in Character
 			local char = LocalPlayer.Character
 			if char then
 				for _, item in ipairs(char:GetChildren()) do
@@ -105,15 +105,15 @@ local function ChatCommand(speakerName, message)
 				end
 			end
 
-			-- Rename Train in Workspace directly under LocalPlayer
+			-- Rename "Train" in Workspace (regardless of owner)
 			for _, item in ipairs(workspace:GetChildren()) do
-			if item:IsA("Tool") and item.Name == "Train" then
-				item.Name = "None"
+				if item:IsA("Tool") and item.Name == "Train" and item.Parent == workspace then
+					item.Name = "None"
+				end
 			end
-		end
-	end)
+		end)
 
-		-- Try to equip "None" tool
+		-- Equip "None" if it exists
 		local Backpack = LocalPlayer.Backpack
 		local Character = LocalPlayer.Character
 		local None = Backpack:FindFirstChild("None") or (Character and Character:FindFirstChild("None"))
