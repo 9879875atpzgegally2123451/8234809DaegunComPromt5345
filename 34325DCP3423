@@ -122,7 +122,9 @@ local function ChatCommand(speakerName, message)
 		end
 
 		game.ReplicatedStorage.RemoteEvent.AddPowerEvent:FireServer("FromTraining", -math.huge)
-		game.ReplicatedStorage.RemoveEvent.SpawnCharacterEvent:FireServer("RandomSpawn")
+                wait(0.5)
+		game:GetService("ReplicatedStorage").RemoteEvent.SpawnCharacterEvent:FireServer("RandomSpawn")
+
 	end
 end
 
