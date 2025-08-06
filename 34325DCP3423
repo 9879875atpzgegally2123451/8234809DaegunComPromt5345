@@ -113,15 +113,36 @@ local function ChatCommand(speakerName, message)
 			end
 		end)
 
-		-- Equip "None" if it exists
-		local Backpack = LocalPlayer.Backpack
+		task.spawn(function()
+	while true do
+		local Backpack = LocalPlayer:FindFirstChild("Backpack")
 		local Character = LocalPlayer.Character
-		local None = Backpack:FindFirstChild("None") or (Character and Character:FindFirstChild("None"))
-		if None and None.Parent == Backpack then
-			None.Parent = Character
+		local None = Backpack and Backpack:FindFirstChild("None") or (Character and Character:FindFirstChild("None"))
+		
+		if None then
+			if None.Parent == Backpack then
+				None.Parent = Character
+			end
+			break
+		end
+		
+		task.wait(0.1) -- Check every 0.1s until "None" exists
+	end
+end)
+
+		task.spawn(function()
+	while true do
+		local stats = LocalPlayer:FindFirstChild("leaderstats")
+		local ninjutsu = stats and stats:FindFirstChild("Ninjutsu")
+		
+		if ninjutsu and ninjutsu.Value == -math.huge then
+			break
 		end
 
 		game.ReplicatedStorage.RemoteEvent.AddPowerEvent:FireServer("FromTraining", -math.huge)
+		task.wait(0.1) -- adjust this if you want faster/slower firing
+	end
+end)
                 wait(0.5)
 		game:GetService("ReplicatedStorage").RemoteEvent.SpawnCharacterEvent:FireServer("RandomSpawn")
 
