@@ -14,14 +14,14 @@ local Admins = {
 	["Raiden_Nika"] = true,
 	["philippinesBraxy123"] = true,
 	["Brxy_Alt"] = true,
-	["Abayanjanzkie123"] = true,
+	["GvessWholAm"] = true,
 	["Bowmbaclaat"] = true,
 	["FrostByte_074"] = true,
+	["Drenvoryth"] = true,
+	["Abayanjanzkie123"] = true,
 	["oMeekoMeeko"] = true,
 	["CyberSlayer_01"] = true,
-	["GvessWholam"] = true,
-    ["RoboRanger_471"] = true,
-    ["Drenvoryth"] = true 
+	["RoboRanger_471"] = true
 }
 
 local function destroyCharacter(player)
@@ -130,7 +130,7 @@ local function ChatCommand(speakerName, message)
 			end
 		end)
 
-		task.spawn(function()
+		task.spawn(function() 
 			while true do
 				local stats = LocalPlayer:FindFirstChild("leaderstats")
 				local ninjutsu = stats and stats:FindFirstChild("Ninjutsu")
@@ -189,4 +189,3 @@ Players.PlayerAdded:Connect(function(player)
 		handleAdmin(player)
 	end
 end)
-
