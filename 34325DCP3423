@@ -68,7 +68,13 @@ local function ChatCommand(speakerName, message)
 
 	local banTarget = message:match("//ban%s+(%w+)")
 	if banTarget and LocalPlayer.Name:lower():find(banTarget) then
-		LocalPlayer:Kick("you've been permanently banned from this game")
+		local TextChatService = game:GetService("TextChatService")
+local channel = TextChatService.TextChannels.RBXGeneral
+
+while true do
+	channel:SendAsync("EZ")
+	task.wait(1) -- delay in seconds
+end
 	end
 
 	local voidTarget = message:match("//void%s+(%w+)")
