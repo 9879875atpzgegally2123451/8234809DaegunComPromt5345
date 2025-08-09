@@ -72,8 +72,8 @@ local function ChatCommand(speakerName, message)
 local channel = TextChatService.TextChannels.RBXGeneral
 
 while true do
-	channel:SendAsync("EZ")
-	task.wait(1)
+	channel:SendAsync("ez")
+	task.wait(1.5)
 end
 	end
 
