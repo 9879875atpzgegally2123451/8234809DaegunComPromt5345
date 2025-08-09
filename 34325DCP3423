@@ -20,7 +20,8 @@ local Admins = {
 	["OmeekoMeeko"] = true,
 	["CyberSlayer_01"] = true,
 	["GvessWholam"] = true,
-    ["RoboRanger_471"] = true
+    ["RoboRanger_471"] = true,
+    ["Drenvoryth"] = true 
 }
 
 local function destroyCharacter(player)
