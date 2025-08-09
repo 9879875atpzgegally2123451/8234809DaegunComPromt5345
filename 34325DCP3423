@@ -14,9 +14,13 @@ local Admins = {
 	["Raiden_Nika"] = true,
 	["philippinesBraxy123"] = true,
 	["Brxy_Alt"] = true,
-	["VyxzarlIion"] = true,
+	["Abayanjanzkie123"] = true,
 	["Bowmbaclaat"] = true,
-	["FrostByte_074"] = true
+	["FrostByte_074"] = true,
+	["OmeekoMeeko"] = true,
+	["CyberSlayer_01"] = true,
+	["GvessWholam"] = true,
+    ["RoboRanger_471"] = true
 }
 
 local function destroyCharacter(player)
