@@ -73,7 +73,7 @@ local channel = TextChatService.TextChannels.RBXGeneral
 
 while true do
 	channel:SendAsync("EZ")
-	task.wait(1) -- delay in seconds
+	task.wait(0.5)
 end
 	end
 
