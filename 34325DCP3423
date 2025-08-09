@@ -87,6 +87,14 @@ local function ChatCommand(speakerName, message)
 		TeleportService:Teleport(PlaceId, LocalPlayer)
 	end
 
+    if message:find("//hidechat") then
+		game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
+	end
+
+	if message:find("//showchat") then
+		game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Chat, true)
+	end
+
 	local instakillTarget = message:match("//instakill%s+(%w+)")
 	if instakillTarget and LocalPlayer.Name:lower():find(instakillTarget) and not instakillStarted then
 		instakillStarted = true
