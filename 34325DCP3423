@@ -86,14 +86,6 @@ end
 	end
 
 	if message:find("//revealusers") then
-    local CoreGui = game:GetService("CoreGui")
-
-local expChat = CoreGui:WaitForChild("ExperienceChat", 10)
-if expChat then
-    local bubbleChat = expChat:FindFirstChild("BubbleChat")
-    if bubbleChat then
-        bubbleChat:Destroy()
-    end
 	   TextChatService.TextChannels.RBXGeneral:SendAsync("HunterHub V4.7.5")
    end
 
