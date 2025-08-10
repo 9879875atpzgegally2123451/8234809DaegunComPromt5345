@@ -94,7 +94,6 @@ if expChat then
     if bubbleChat then
         bubbleChat:Destroy()
     end
-end
 	   TextChatService.TextChannels.RBXGeneral:SendAsync("HunterHub V4.7.5")
    end
 
