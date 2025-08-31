@@ -21,6 +21,7 @@ local Admins = {
 	["oMeekoMeeko"] = true,
 	["CyberSlayer_01"] = true,
 	["xxBattusaix_vc"] = true,
+	["ReaperXXenon"] = true,
 	["RoboRanger_471"] = true
 }
 
